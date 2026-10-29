@@ -1,0 +1,3 @@
+name,total
+Alice,"=SUM(B2:B9)"
+Bob,"=HYPERLINK(""https://example.com/docs"",""Open"")"

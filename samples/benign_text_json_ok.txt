@@ -1,0 +1,1 @@
+{"name": "app", "version": "1.2.3", "description": "A small tool for converting images."}

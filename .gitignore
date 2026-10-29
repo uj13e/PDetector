@@ -1,0 +1,14 @@
+__pycache__/
+*.pyc
+*.pyo
+.venv/
+venv/
+*.egg-info/
+build/
+dist/
+# スキャンログ・設定(ユーザーのファイル名や検知抜粋を含み得る)
+scan-*.jsonl
+config.json
+gui.json
+.DS_Store
+Thumbs.db

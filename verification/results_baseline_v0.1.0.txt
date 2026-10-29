@@ -1,0 +1,249 @@
+# verification results  root=<project>  2026-10-28 10:39:33
+
+
+======== fixtures ========
+made 36 files
+
+
+======== text rules (FP/FN/unicode/decoders/perf) ========
+##### A. samples baseline
+high      | attack_base64.md                 | encoded:base64:override_ignore_previous,encoded:base64:system_prompt_leak
+critical  | attack_basic.txt                 | do_not_tell_user,override_ignore_previous,send_to_url,you_are_now
+critical  | attack_hidden.html               | ai_only_marker,approve_everything,do_not_tell_user,hidden_html_element,html_comment,jailbreak_named,override_ignore_previous,roleplay_actas,send_to_url
+critical  | attack_hidden_unicode.txt        | invisible_chars,unicode_tag_smuggling
+critical  | attack_jp.txt                    | do_not_tell_user_jp,override_ignore_jp,system_prompt_leak_jp
+critical  | attack_word.docx                 | ai_only_marker,do_not_tell_user,docx_hidden_text,docx_white_text,encoded:atbash:override_ignore_jp,encoded:atbash:system_prompt_leak_jp,encoded:rot13:override_ignore_jp,encoded:rot13:system_prompt_leak_jp,override_ignore_jp,override_ignore_previous,send_to_url,system_prompt_leak_jp
+clean     | clean_normal.txt                 | 
+clean     | clean_page.html                  | 
+
+##### B. benign text (expected: clean)
+medium    | visit URL                                      | fetch_execute_url
+critical  | submit application URL                         | send_to_url
+high      | format the data                                | destructive_action
+high      | run following cmd (README)                     | run_command
+critical  | do not show user passwords                     | do_not_tell_user
+high      | silently ignores                               | secretly
+high      | person named Dan                               | jailbreak_named
+high      | Model: Dodge                                   | ai_only_marker,encoded:leet:ai_only_marker
+high      | no restrictions marketing                      | jailbreak_named
+medium    | you are now logged in                          | you_are_now
+medium    | your new role HR                               | you_are_now
+medium    | act as proxy                                   | roleplay_actas
+medium    | behave as expected                             | roleplay_actas
+critical  | JP privacy policy                              | send_credentials_jp
+critical  | JP data send manual                            | send_credentials_jp
+high      | JP delete file manual                          | destructive_jp
+high      | JP show settings                               | system_prompt_leak_jp
+high      | JP prompt output (LLM docs)                    | encoded:atbash:system_prompt_leak_jp,encoded:rot13:system_prompt_leak_jp,system_prompt_leak_jp
+medium    | without asking                                 | approve_everything
+medium    | JP corporate 'new rule'                        | new_instructions_jp
+low       | end of document                                | end_of_document_marker
+
+##### C. attacks (expected: detected)
+clean     | paraphrase disregard told earlier              | 
+clean     | stop following guidelines                      | 
+clean     | instead do X                                   | 
+clean     | print hidden system message                    | 
+clean     | forward mail (no URL)                          | 
+clean     | md image no query                              | 
+clean     | [SYSTEM] label                                 | 
+clean     | SYSTEM: label                                  | 
+clean     | split by period                                | 
+clean     | wrapped line (PDF-like)                        | 
+critical  | Cyrillic homoglyph o                           | send_to_url
+critical  | combining mark                                 | send_to_url
+high      | LRM inside word                                | system_prompt_leak
+high      | CGJ inside word                                | system_prompt_leak
+clean     | spaced letters                                 | 
+clean     | JP no 'before' word                            | 
+clean     | JP 命令を無視せよ                                     | 
+clean     | JP 従来の指示は破棄                                    | 
+clean     | DE 'Sage'                                      | 
+high      | unicode escape \u                              | override_ignore_previous,system_prompt_leak
+high      | small caps                                     | system_prompt_leak
+
+##### D. unicode heuristics FP
+high      | UTF-8 BOM at start                             | invisible_chars
+high      | 4 emoji with VS16                              | variation_selector_smuggling
+critical  | England flag (tag seq)                         | unicode_tag_smuggling
+high      | family emoji (ZWJ x2 each, 4 fam)              | invisible_chars
+high      | soft hyphen x1 (PDF hyphenation)               | invisible_chars
+
+##### E. decoders
+high      | base64 plain                                   | encoded:base64:override_ignore_previous,encoded:base64:system_prompt_leak
+clean     | nested base64                                  | 
+high      | base64url-ish (- _)                            | encoded:base64:override_ignore_previous,encoded:base64:system_prompt_leak
+clean     | 100 hashes THEN base64 payload                 | 
+clean     | 100 hashes only (control)                      | 
+high      | base64 MIME-wrapped (straddle)                 | encoded:base64:system_prompt_leak
+clean     | base64 payload glued to word                   | 
+
+##### F. performance / ReDoS
+   4.84s | 1MB plain English                  | level=clean len=1000000
+   4.00s | 500KB Japanese                     | level=clean len=500000
+  56.33s | '{{' x 50000 one line              | level=clean len=100000
+   7.28s | '{{ system' x 8000 one line        | level=clean len=40000
+   3.23s | 'ignore ' x 100000                 | level=clean len=550000
+
+
+======== evasion matrix ========
+## isolated evasion tests (payload = only the ignore phrase)
+high      | control: plain                               | override_ignore_previous
+clean     | Cyrillic o (U+043E)                          | 
+clean     | Cyrillic a/e/o mix                           | 
+clean     | combining acute                              | 
+clean     | LRM U+200E in word                           | 
+clean     | RLM U+200F                                   | 
+clean     | CGJ U+034F                                   | 
+clean     | Braille blank U+2800                         | 
+high      | ZWSP (control: stripped)                     | invisible_chars,override_ignore_previous
+clean     | small caps                                   | 
+high      | fullwidth (control: NFKC ok)                 | override_ignore_previous
+clean     | \u escapes full                              | 
+clean     | JSON-ish \x escapes                          | 
+clean     | period inside                                | 
+clean     | newline inside                               | 
+clean     | double newline/paragraph                     | 
+high      | tab-separated                                | override_ignore_previous
+clean     | spaced letters                               | 
+clean     | dots between letters                         | 
+clean     | word reordering                              | 
+clean     | past tense 'ignored'                         | 
+clean     | EN synonyms: 'pay no attention to'           | 
+clean     | EN: 'do not follow earlier rules'            | 
+clean     | EN: 'the above is wrong, new: '              | 
+clean     | JP: 指示を無視して                                  | 
+clean     | JP: ルールを無視                                   | 
+high      | JP: 以前の指示を無視 (control)                       | override_ignore_jp
+clean     | JP: 先ほどの指示は忘れて                               | 
+
+## base64 variants
+high      | plain                                        | encoded:base64:override_ignore_previous,encoded:base64:system_prompt_leak
+clean     | with spaces every 8 chars                    | 
+high      | urlsafe w/ real - or _                       | encoded:base64:override_ignore_previous,encoded:base64:system_prompt_leak
+  (urlsafe string: fn5-fiBQbGVhc2UgaWdub3JlIGFsbC ...)
+clean     | base64 of base64                             | 
+clean     | zlib+base64                                  | 
+clean     | rot13 then base64                            | 
+clean     | base64 UTF-16LE                              | 
+high      | short payload 'ignore previous' b64          | encoded:base64:override_ignore_previous
+clean     | base85                                       | 
+clean     | ascii85                                      | 
+clean     | quoted-printable-ish =69=67..                | 
+clean     | morse-ish/emoji skip                         | 
+
+## where an instruction in a *benign-looking* hidden context
+high      | attack inside code fence                     | override_ignore_previous
+high      | this README-style meta text                  | override_ignore_previous
+
+
+======== files ========
+clean     | annot_placeholder.pdf            |                                                                        | 
+critical  | attack.odt                       | do_not_tell_user,override_ignore_previous,send_to_url                  | 
+high      | attack_cmyk_white.pdf            | encoded:leet:override_ignore_previous,encoded:leet:system_prompt_leak, | 
+high      | attack_in_title_meta.pdf         | encoded:leet:override_ignore_previous,encoded:leet:system_prompt_leak, | 
+high      | attack_invisible_rendermode3.pdf | encoded:leet:override_ignore_previous,encoded:leet:system_prompt_leak, | 
+high      | attack_near_white.pdf            | encoded:leet:override_ignore_previous,encoded:leet:system_prompt_leak, | 
+high      | attack_offpage.pdf               | encoded:leet:override_ignore_previous,encoded:leet:system_prompt_leak, | 
+high      | attack_white.pdf                 | encoded:leet:override_ignore_previous,encoded:leet:system_prompt_leak, | 
+clean     | attack_word_noext                |                                                                        | 
+clean     | attack_word_renamed.txt          |                                                                        | 
+clean     | attack_wrapped.pdf               |                                                                        | 
+high      | benign_white_on_dark.pdf         | pdf_white_text                                                         | 
+clean     | docx_base.docx                   |                                                                        | 
+high      | docx_nearwhite.docx              | override_ignore_previous,system_prompt_leak                            | 
+clean     | docx_props.docx                  |                                                                        | 
+high      | docx_style_vanish.docx           | override_ignore_previous,system_prompt_leak                            | 
+clean     | docx_textbox.docx                |                                                                        | 
+high      | docx_tiny_font.docx              | override_ignore_previous,system_prompt_leak                            | 
+clean     | docx_tracked_delete.docx         |                                                                        | 
+clean     | en_utf16.txt                     |                                                                        | 
+high      | en_utf8bom.txt                   | invisible_chars                                                        | 
+clean     | jp_cp932.txt                     |                                                                        | 
+clean     | jp_eucjp.txt                     |                                                                        | 
+critical  | jp_utf8.txt                      | do_not_tell_user_jp,override_ignore_jp,system_prompt_leak_jp           | 
+clean     | legacy.doc                       |                                                                        | 
+medium    | pptx_benign_notes.pptx           | pptx_notes                                                             | 
+clean     | pptx_group.pptx                  |                                                                        | 
+high      | pptx_hiddenslide.pptx            | encoded:leet:override_ignore_previous,encoded:leet:system_prompt_leak, | 
+high      | pptx_offslide.pptx               | encoded:leet:override_ignore_previous,encoded:leet:system_prompt_leak, | 
+clean     | pptx_table.pptx                  |                                                                        | 
+high      | pptx_tinyfont.pptx               | encoded:leet:override_ignore_previous,encoded:leet:system_prompt_leak, | 
+clean     | xlsx_comment.xlsx                |                                                                        | 
+clean     | xlsx_formula_nocache.xlsx        |                                                                        | 
+high      | xlsx_hidden_sheet.xlsx           | override_ignore_previous,system_prompt_leak                            | 
+clean     | xlsx_split_cells.xlsx            |                                                                        | 
+high      | xlsx_whitefont.xlsx              | override_ignore_previous,system_prompt_leak                            | 
+
+
+======== files (structural summary) ========
+clean     | annot_placeholder.pdf              | structural=- | text-rules=N | spurious-encoded=-
+high      | attack_cmyk_white.pdf              | structural=- | text-rules=Y | spurious-encoded=['leet']
+high      | attack_in_title_meta.pdf           | structural=- | text-rules=Y | spurious-encoded=['leet']
+high      | attack_invisible_rendermode3.pdf   | structural=- | text-rules=Y | spurious-encoded=['leet']
+high      | attack_near_white.pdf              | structural=- | text-rules=Y | spurious-encoded=['leet']
+high      | attack_offpage.pdf                 | structural=- | text-rules=Y | spurious-encoded=['leet']
+high      | attack_white.pdf                   | structural=['pdf_white_text'] | text-rules=Y | spurious-encoded=['leet']
+clean     | attack_wrapped.pdf                 | structural=- | text-rules=N | spurious-encoded=-
+high      | benign_white_on_dark.pdf           | structural=['pdf_white_text'] | text-rules=N | spurious-encoded=-
+clean     | docx_base.docx                     | structural=- | text-rules=N | spurious-encoded=-
+high      | docx_nearwhite.docx                | structural=- | text-rules=Y | spurious-encoded=-
+clean     | docx_props.docx                    | structural=- | text-rules=N | spurious-encoded=-
+high      | docx_style_vanish.docx             | structural=- | text-rules=Y | spurious-encoded=-
+clean     | docx_textbox.docx                  | structural=- | text-rules=N | spurious-encoded=-
+high      | docx_tiny_font.docx                | structural=- | text-rules=Y | spurious-encoded=-
+clean     | docx_tracked_delete.docx           | structural=- | text-rules=N | spurious-encoded=-
+medium    | pptx_benign_notes.pptx             | structural=['pptx_notes'] | text-rules=N | spurious-encoded=-
+clean     | pptx_group.pptx                    | structural=- | text-rules=N | spurious-encoded=-
+high      | pptx_hiddenslide.pptx              | structural=- | text-rules=Y | spurious-encoded=['leet']
+high      | pptx_offslide.pptx                 | structural=- | text-rules=Y | spurious-encoded=['leet']
+clean     | pptx_table.pptx                    | structural=- | text-rules=N | spurious-encoded=-
+high      | pptx_tinyfont.pptx                 | structural=- | text-rules=Y | spurious-encoded=['leet']
+clean     | xlsx_comment.xlsx                  | structural=- | text-rules=N | spurious-encoded=-
+clean     | xlsx_formula_nocache.xlsx          | structural=- | text-rules=N | spurious-encoded=-
+high      | xlsx_hidden_sheet.xlsx             | structural=- | text-rules=Y | spurious-encoded=-
+clean     | xlsx_split_cells.xlsx              | structural=- | text-rules=N | spurious-encoded=-
+high      | xlsx_whitefont.xlsx                | structural=- | text-rules=Y | spurious-encoded=-
+
+
+======== html ========
+high      | BENIGN font-size:0.9em                       | hidden_html_element  
+high      | BENIGN opacity:0.85                          | hidden_html_element  
+high      | BENIGN white text on dark hero               | hidden_html_element  
+high      | BENIGN aria-hidden icon label                | hidden_html_element  
+medium    | BENIGN html comment                          | html_comment  
+clean     | BENIGN <meta viewport>                       |   
+high      | ATTACK display:none                          | hidden_html_element,override_ignore_previous,system_prompt_leak  
+high      | ATTACK class-based hidden (css in <style>)   | override_ignore_previous,system_prompt_leak  
+high      | ATTACK tailwind class hidden                 | override_ignore_previous,system_prompt_leak  
+high      | ATTACK color:transparent                     | override_ignore_previous,system_prompt_leak  
+high      | ATTACK clip rect(0,0,0,0)                    | override_ignore_previous,system_prompt_leak  
+high      | ATTACK height:0;overflow:hidden              | override_ignore_previous,system_prompt_leak  
+high      | ATTACK font-size:1px                         | override_ignore_previous,system_prompt_leak  
+high      | ATTACK near-white #fefefe on white           | override_ignore_previous,system_prompt_leak  
+clean     | ATTACK <noscript>                            |   
+clean     | ATTACK <script type=ld+json>                 |   
+clean     | ATTACK <input type=hidden value>             |   
+clean     | ATTACK aria-label                            |   
+clean     | ATTACK title attr on div                     |   
+clean     | ATTACK data- attr                            |   
+clean     | ATTACK <template>                            |   
+high      | ATTACK <svg><text> 1px                       | override_ignore_previous,system_prompt_leak  
+high      | ATTACK <textarea hidden>                     | hidden_html_element,override_ignore_previous,system_prompt_leak  
+clean     | ATTACK word split by inline tags             |   
+high      | ATTACK entity-encoded in html                | override_ignore_previous  
+high      | ATTACK unclosed comment                      | html_comment,override_ignore_previous,system_prompt_leak  
+clean     | ATTACK link href javascript/data             |   
+high      | ATTACK alt only (control, should hit)        | override_ignore_previous,system_prompt_leak  
+
+
+======== url (local server) ========
+critical  | JP page, UTF-8 w/ charset (control)            | len=60        | do_not_tell_user_jp,override_ignore_jp,system_prom | HTTP 200, Content-Type: text/html; charset=utf-8 | 0.1s
+medium    | JP page, Shift_JIS, no charset header          | len=119       | invisible_chars | HTTP 200, Content-Type: text/html | 0.0s
+medium    | JP page, Shift_JIS, charset in <meta> only     | len=148       | invisible_chars | HTTP 200, Content-Type: text/html | 0.0s
+clean     | SSRF: fetches loopback/internal URL (no block) | len=39        |  | HTTP 200, Content-Type: text/plain | 0.0s
+clean     | redirect -> internal (followed silently)       | len=39        |  | HTTP 200, Content-Type: text/plain | 0.0s
+clean     | URL serving a PDF (application/pdf)            | len=1448      |  | HTTP 200, Content-Type: application/pdf | 0.0s
+clean     | UA cloaking (scanner UA gets clean page)       | len=20        |  | HTTP 200, Content-Type: text/plain; charset=utf-8 | 0.0s
+clean     | 8MB response (no size cap)                     | len=8000000   |  | HTTP 200, Content-Type: text/plain | 30.2s
+  peak RSS growth ~ 1440 MB

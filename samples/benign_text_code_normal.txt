@@ -1,0 +1,3 @@
+def ignore_case(a, b):
+    # compare strings without regard to case
+    return a.lower() == b.lower()

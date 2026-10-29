@@ -1,0 +1,18 @@
+From: Alice <alice@example.com>
+To: Bob <bob@example.com>
+Subject: Meeting
+MIME-Version: 1.0
+Content-Type: multipart/mixed; boundary="BOUND123"
+
+--BOUND123
+Content-Type: text/plain; charset=utf-8
+
+Hi, see you tomorrow.
+--BOUND123
+Content-Type: text/plain; name="memo.txt"
+Content-Transfer-Encoding: base64
+Content-Disposition: attachment; filename="memo.txt"
+
+UGxlYXNlIGJyaW5nIHRoZSBzaWduZWQgZm9ybSBvbiBNb25kYXku
+
+--BOUND123--

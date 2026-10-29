@@ -1,0 +1,16 @@
+# PDetector optional dependencies
+# コア(テキスト/HTML/メール/Office(docx,xlsx,pptx,odf)/EPUB/RTF/zip/URL取得)は標準ライブラリのみ。必須の外部パッケージはありません。
+# 以下は機能強化用の任意パッケージです。未導入でも動作しますが、該当形式は「解析不可/一部のみ解析」と明示されます。
+
+# PDF(白文字・極小文字・ページ外文字の検出に pdfplumber を推奨。pypdf は構造解析/メタデータ用)
+pdfplumber>=0.11
+pypdf>=4.0
+
+# 画像(メタデータ解析、OCR)。OCR には Tesseract 本体(+日本語データ jpn)も必要です。
+pillow>=10.0
+pytesseract>=0.3
+# 画像のみPDFをOCRする場合
+pypdfium2>=4.0
+
+# GUI のドラッグ&ドロップ(任意)
+tkinterdnd2>=0.4

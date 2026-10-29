@@ -1,0 +1,1 @@
+In a prompt injection attack, an attacker hides text such as an instruction to override the system rules. Defenders should filter such content.

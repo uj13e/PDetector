@@ -1,0 +1,1 @@
+To list files use ls. To print the system information use uname -a. Do not run commands as root unless required.
